@@ -317,6 +317,30 @@ async function deleteDepartment() {
     getNextTask();
 }
 
+async function deleteRole() {
+    const roleChoices = await getRoles();
+    roleChoices.push("None");
+    const userResponse = await inquirer
+        .prompt([
+        {
+            type: "list",
+            name: "roleName",
+            message: "Which role would you like to delete?",
+            choices: roleChoices,
+            default: "None",
+        },
+    ]);
+    if (userResponse.roleName !== "None") {
+        const roleID = await getRoleID(userResponse.roleName);
+
+        const sql = `
+        DELETE FROM roles 
+            WHERE id="${roleID}"`;
+        await db.promise().query(sql);
+    }
+    getNextTask();
+}
+
 function getNextTask() {
     inquirer
         .prompt({
@@ -335,6 +359,8 @@ function getNextTask() {
                 "Update An Employee Role",
                 "Update An Employee's Manager",
                 "Delete A Department",
+                "Delete A Role",
+                "Delete An Employee",
             ]
         })
         .then((response) => {
@@ -372,6 +398,9 @@ function getNextTask() {
                 case "Delete A Department":
                     deleteDepartment();
                     break;
+                case "Delete A Role":
+                    deleteRole();
+                    break;  
                 default:
                     console.log("Haven't coded that part yet.");
                     getNextTask();
