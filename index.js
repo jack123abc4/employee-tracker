@@ -47,7 +47,7 @@ function printEmployees() {
     );
 }
 
-async function addDepartment(response) {
+async function addDepartment() {
     await inquirer
         .prompt({
             type: "input",
@@ -63,12 +63,48 @@ async function addDepartment(response) {
     getNextTask();
 }
 
+async function addRole() {
+    const departments = await db.promise().query("SELECT department_name FROM departments");
+    let departmentChoices = [];
+    for (const d of departments[0]) {
+        departmentChoices.push(d.department_name);
+    }
+    console.log(departmentChoices);
+    await inquirer
+        .prompt([
+        {
+            type: "input",
+            name: "roleName",
+            message: "What is the name of the new role?"
+        },
+        {
+            type: "input",
+            name: "salary",
+            message: "What is the salary for this role? $"
+        },
+        {
+            type: "list",
+            name: "departmentName",
+            message: "What department does this role belong to?",
+            choices: departmentChoices
+        }
+    ])
+        .then((response) => {
+            // figure out how to get department_id from name
+            const sql = `
+            INSERT INTO roles (title, salary, department_id)
+                VALUES ("${response.departmentName}")`;
+            db.query(sql);
+        })
+    getNextTask();
+}
+
 function getNextTask() {
     inquirer
         .prompt({
-            type: 'list',
+            type: "list",
             name: "nextTask",
-            message: 'What would you like to do next?',
+            message: "What would you like to do next?",
             choices: [
                 "View All Departments",
                 "View All Roles",
@@ -92,6 +128,9 @@ function getNextTask() {
                     break;
                 case "Add A Department":
                     addDepartment();
+                    break;
+                case "Add A Role":
+                    addRole();
                     break;
                 default:
                     console.log("Haven't coded that part yet.");

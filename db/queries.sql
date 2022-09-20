@@ -21,6 +21,6 @@ SELECT e.id AS EMPLOYEE_ID, e.first_name AS FIRST_NAME, e.last_name AS LAST_NAME
     LEFT JOIN employees AS m ON e.manager_id = m.id;
 
 -- ADD DEPARTMENT
-INSERT INTO departments (department_name)
-    VALUES ("Janitorial");
+-- INSERT INTO departments (department_name)
+--     VALUES ("Janitorial");
 
