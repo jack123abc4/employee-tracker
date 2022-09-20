@@ -29,9 +29,14 @@ SELECT e.id AS EMPLOYEE_ID, e.first_name AS FIRST_NAME, e.last_name AS LAST_NAME
     -- FROM employees
     -- WHERE CONCAT(first_name," ",last_name)="Jobe Leonard";
 
-SELECT e.id AS EMPLOYEE_ID, e.first_name AS FIRST_NAME, e.last_name AS LAST_NAME, r.title as TITLE, d.department_name AS DEPARTMENT_NAME, r.salary AS SALARY, IFNULL(CONCAT(m.first_name, ' ', m.last_name), null) AS MANAGER
-    FROM employees AS e
-    JOIN roles AS r ON e.role_id = r.id
-    JOIN departments AS d ON r.department_id = d.id
-    LEFT JOIN employees AS m ON e.manager_id = m.id
-    ORDER BY MANAGER;
+-- EMPLOYEES PRINT OUT ORDERED
+-- SELECT e.id AS EMPLOYEE_ID, e.first_name AS FIRST_NAME, e.last_name AS LAST_NAME, r.title as TITLE, d.department_name AS DEPARTMENT_NAME, r.salary AS SALARY, IFNULL(CONCAT(m.first_name, ' ', m.last_name), null) AS MANAGER
+--     FROM employees AS e
+--     JOIN roles AS r ON e.role_id = r.id
+--     JOIN departments AS d ON r.department_id = d.id
+--     LEFT JOIN employees AS m ON e.manager_id = m.id
+--     ORDER BY MANAGER;
+
+-- DELETE DEPARTMENT
+-- DELETE FROM departments 
+--     WHERE department_name="shuffleboarding";

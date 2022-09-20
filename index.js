@@ -100,6 +100,15 @@ async function getEmployees() {
     return employeeChoices;
 }
 
+async function getDepartmentID(departmentName) {
+    const departmentID = (await db.promise().query(
+        `SELECT id
+        FROM departments
+        WHERE
+        department_name="${departmentName}"`))[0][0].id;
+    return departmentID;
+}
+
 async function getRoleID(roleName) {
     const roleID = (await db.promise().query(
         `SELECT id
@@ -164,15 +173,11 @@ async function addRole() {
         }
     ]);
     // console.log("User response",userResponse);
-    const departmentNum = (await db.promise().query(
-                `SELECT id
-                FROM departments
-                WHERE
-                department_name="${userResponse.departmentName}"`))[0][0].id;
+    const departmentID = await getDepartmentID(userResponse.departmentName);
     
     const sql = `
         INSERT INTO roles (title, salary, department_id)
-            VALUES ("${userResponse.roleName}", ${userResponse.salary}, ${departmentNum})`;
+            VALUES ("${userResponse.roleName}", ${userResponse.salary}, ${departmentID})`;
     await db.promise().query(sql);
 
     getNextTask();
@@ -241,16 +246,8 @@ async function updateRole() {
             choices: roleChoices
         }
     ]);
-    const employeeID = (await db.promise().query(
-        `SELECT id
-        FROM employees
-        WHERE CONCAT(first_name," ",last_name)="${userResponse.employeeName}"`))[0][0].id;
-    
-    const roleID = (await db.promise().query(
-        `SELECT id
-        FROM roles
-        WHERE
-        title="${userResponse.roleName}"`))[0][0].id;
+    const employeeID = await getEmployeeID(userResponse.employeeName);
+    const roleID = await getRoleID(userResponse.roleName);
     
     const sql = `
     UPDATE employees
@@ -296,6 +293,30 @@ async function updateManager() {
 
 }
 
+async function deleteDepartment() {
+    const departmentChoices = await getDepartments();
+    departmentChoices.push("None");
+    const userResponse = await inquirer
+        .prompt([
+        {
+            type: "list",
+            name: "departmentName",
+            message: "Which department would you like to delete?",
+            choices: departmentChoices,
+            default: "None",
+        },
+    ]);
+    if (userResponse.departmentName !== "None") {
+        const departmentID = await getDepartmentID(userResponse.departmentName);
+
+        const sql = `
+        DELETE FROM departments 
+            WHERE id="${departmentID}"`;
+        await db.promise().query(sql);
+    }
+    getNextTask();
+}
+
 function getNextTask() {
     inquirer
         .prompt({
@@ -313,6 +334,7 @@ function getNextTask() {
                 "Add An Employee",
                 "Update An Employee Role",
                 "Update An Employee's Manager",
+                "Delete A Department",
             ]
         })
         .then((response) => {
@@ -346,6 +368,9 @@ function getNextTask() {
                     break;
                 case "\t- By Department":
                     printEmployeesByDepartment();
+                    break;
+                case "Delete A Department":
+                    deleteDepartment();
                     break;
                 default:
                     console.log("Haven't coded that part yet.");
