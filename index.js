@@ -37,6 +37,7 @@ function printRoles() {
         JOIN departments AS d ON r.department_id = d.id`
     );
 }
+
 function printEmployees() { 
     printTable(
     `SELECT e.id AS EMPLOYEE_ID, e.first_name AS FIRST_NAME, e.last_name AS LAST_NAME, r.title as TITLE, d.department_name AS DEPARTMENT_NAME, r.salary AS SALARY, IFNULL(CONCAT(m.first_name, ' ', m.last_name), "N/A") AS MANAGER
@@ -45,6 +46,28 @@ function printEmployees() {
         JOIN departments AS d ON r.department_id = d.id
         LEFT JOIN employees AS m ON e.manager_id = m.id`
     );
+}
+
+function printEmployeesByManager() {
+    printTable(
+        `SELECT e.id AS EMPLOYEE_ID, e.first_name AS FIRST_NAME, e.last_name AS LAST_NAME, r.title as TITLE, d.department_name AS DEPARTMENT_NAME, r.salary AS SALARY, IFNULL(CONCAT(m.first_name, ' ', m.last_name), null) AS MANAGER
+        FROM employees AS e
+        JOIN roles AS r ON e.role_id = r.id
+        JOIN departments AS d ON r.department_id = d.id
+        LEFT JOIN employees AS m ON e.manager_id = m.id
+        ORDER BY MANAGER`
+        );
+}
+
+function printEmployeesByDepartment() {
+    printTable(
+        `SELECT e.id AS EMPLOYEE_ID, e.first_name AS FIRST_NAME, e.last_name AS LAST_NAME, r.title as TITLE, d.department_name AS DEPARTMENT_NAME, r.salary AS SALARY, IFNULL(CONCAT(m.first_name, ' ', m.last_name), null) AS MANAGER
+        FROM employees AS e
+        JOIN roles AS r ON e.role_id = r.id
+        JOIN departments AS d ON r.department_id = d.id
+        LEFT JOIN employees AS m ON e.manager_id = m.id
+        ORDER BY DEPARTMENT_NAME`
+        );
 }
 
 async function getDepartments() {
@@ -283,6 +306,8 @@ function getNextTask() {
                 "View All Departments",
                 "View All Roles",
                 "View All Employees",
+                "\t- By Manager",
+                "\t- By Department",
                 "Add A Department",
                 "Add A Role",
                 "Add An Employee",
@@ -315,6 +340,12 @@ function getNextTask() {
                     break;
                 case "Update An Employee's Manager":
                     updateManager();
+                    break;
+                case "\t- By Manager":
+                    printEmployeesByManager();
+                    break;
+                case "\t- By Department":
+                    printEmployeesByDepartment();
                     break;
                 default:
                     console.log("Haven't coded that part yet.");
