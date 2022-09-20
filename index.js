@@ -77,6 +77,31 @@ async function getEmployees() {
     return employeeChoices;
 }
 
+async function getRoleID(roleName) {
+    const roleID = (await db.promise().query(
+        `SELECT id
+        FROM roles
+        WHERE
+        title="${roleName}"`))[0][0].id;
+    return roleID;
+}
+
+async function getManagerID(managerName) {
+    const managerID = managerName === "None" ? null : (await db.promise().query(
+        `SELECT id
+        FROM employees
+        WHERE CONCAT(first_name," ",last_name)="${managerName}"`))[0][0].id;
+    return managerID;
+}
+
+async function getEmployeeID(employeeName) {
+    const employeeID = (await db.promise().query(
+        `SELECT id
+        FROM employees
+        WHERE CONCAT(first_name," ",last_name)="${employeeName}"`))[0][0].id;
+    return employeeID;
+}
+
 async function addDepartment() {
     await inquirer
         .prompt({
@@ -162,18 +187,8 @@ async function addEmployee() {
         },
     ]);
     // console.log("User response",userResponse);
-    const roleID = (await db.promise().query(
-        `SELECT id
-        FROM roles
-        WHERE
-        title="${userResponse.roleName}"`))[0][0].id;
-    
-
-    const managerID = userResponse.managerName === "None" ? null : (await db.promise().query(
-        `SELECT id
-        FROM employees
-        WHERE CONCAT(first_name," ",last_name)="${userResponse.managerName}"`))[0][0].id;
-    // console.log("managerID",managerID);
+    const roleID = await getRoleID(userResponse.roleName);
+    const managerID = await getManagerID(userResponse.managerName);
     
 
     const sql = `
@@ -245,15 +260,8 @@ async function updateManager() {
             default: "None"
         }
     ]);
-    const employeeID = (await db.promise().query(
-        `SELECT id
-        FROM employees
-        WHERE CONCAT(first_name," ",last_name)="${userResponse.employeeName}"`))[0][0].id;
-
-    const managerID = userResponse.managerName === "None" ? null : (await db.promise().query(
-        `SELECT id
-        FROM employees
-        WHERE CONCAT(first_name," ",last_name)="${userResponse.managerName}"`))[0][0].id;
+    const employeeID = await getEmployeeID(userResponse.employeeName);
+    const managerID = await getManagerID(userResponse.managerName);
 
     const sql = `
     UPDATE employees
