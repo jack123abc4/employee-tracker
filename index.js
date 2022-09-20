@@ -175,6 +175,56 @@ async function addEmployee() {
 
 }
 
+async function updateRole() {
+    const employees = (await db.promise().query("SELECT id, first_name, last_name FROM employees"))[0];
+    // console.log(employees);
+    let employeeChoices = [];
+    for (const e of employees) {
+        employeeChoices.push(`${e.first_name} ${e.last_name}`);
+    }
+
+    const roles = (await db.promise().query("SELECT id, title FROM roles"))[0];
+    // console.log(roles);
+    let roleChoices = [];
+    for (const r of roles) {
+        roleChoices.push(r.title);
+    }
+    const userResponse = await inquirer
+        .prompt([
+        {
+            type: "list",
+            name: "employeeName",
+            message: "For which employee would you like to update their role?",
+            choices: employeeChoices
+        },
+        {
+            type: "list",
+            name: "roleName",
+            message: "What is the employee's new role?",
+            choices: roleChoices
+        }
+    ]);
+    const employeeID = (await db.promise().query(
+        `SELECT id
+        FROM employees
+        WHERE CONCAT(first_name," ",last_name)="${userResponse.employeeName}"`))[0][0].id;
+    
+    const roleID = (await db.promise().query(
+        `SELECT id
+        FROM roles
+        WHERE
+        title="${userResponse.roleName}"`))[0][0].id;
+    
+    const sql = `
+    UPDATE employees
+    SET role_id = ${roleID}
+    WHERE id = ${employeeID}`;
+    await db.promise().query(sql);
+
+    
+    getNextTask();
+}
+
 function getNextTask() {
     inquirer
         .prompt({
@@ -210,6 +260,9 @@ function getNextTask() {
                     break;
                 case "Add An Employee":
                     addEmployee();
+                    break;
+                case "Update An Employee Role":
+                    updateRole();
                     break;
                 default:
                     console.log("Haven't coded that part yet.");

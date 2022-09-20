@@ -24,6 +24,10 @@ SELECT e.id AS EMPLOYEE_ID, e.first_name AS FIRST_NAME, e.last_name AS LAST_NAME
 -- INSERT INTO departments (department_name)
 --     VALUES ("Janitorial");
 
-SELECT id
-FROM employees
-WHERE CONCAT(first_name," ",last_name)="Jobe Leonard";
+-- SELECT id
+-- FROM employees
+-- WHERE CONCAT(first_name," ",last_name)="Jobe Leonard";
+
+UPDATE employees
+SET role_id = 11
+WHERE id = 16;
