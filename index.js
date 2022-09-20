@@ -69,8 +69,8 @@ async function addRole() {
     for (const d of departments[0]) {
         departmentChoices.push(d.department_name);
     }
-    console.log(departmentChoices);
-    await inquirer
+    // console.log(departmentChoices);
+    const userResponse = await inquirer
         .prompt([
         {
             type: "input",
@@ -88,14 +88,19 @@ async function addRole() {
             message: "What department does this role belong to?",
             choices: departmentChoices
         }
-    ])
-        .then((response) => {
-            // figure out how to get department_id from name
-            const sql = `
-            INSERT INTO roles (title, salary, department_id)
-                VALUES ("${response.departmentName}")`;
-            db.query(sql);
-        })
+    ]);
+    // console.log("User response",userResponse);
+    const departmentNum = (await db.promise().query(
+                `SELECT id
+                FROM departments
+                WHERE
+                department_name="${userResponse.departmentName}"`))[0][0].id;
+    
+    const sql = `
+        INSERT INTO roles (title, salary, department_id)
+            VALUES ("${userResponse.roleName}", ${userResponse.salary}, ${departmentNum})`;
+    await db.promise().query(sql);
+    
     getNextTask();
 }
 
