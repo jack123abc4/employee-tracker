@@ -100,8 +100,79 @@ async function addRole() {
         INSERT INTO roles (title, salary, department_id)
             VALUES ("${userResponse.roleName}", ${userResponse.salary}, ${departmentNum})`;
     await db.promise().query(sql);
-    
+
     getNextTask();
+}
+
+async function addEmployee() {
+    const departments = (await db.promise().query("SELECT department_name FROM departments"))[0];
+    let departmentChoices = [];
+    for (const d of departments) {
+        departmentChoices.push(d.department_name);
+    }
+
+    const roles = (await db.promise().query("SELECT id, title FROM roles"))[0];
+    // console.log(roles);
+    let roleChoices = [];
+    for (const r of roles) {
+        roleChoices.push(r.title);
+    }
+
+    const employees = (await db.promise().query("SELECT id, first_name, last_name FROM employees"))[0];
+    // console.log(employees);
+    let managerChoices = [];
+    for (const m of employees) {
+        managerChoices.push(`${m.first_name} ${m.last_name}`);
+    }
+    managerChoices.push("None");
+
+    const userResponse = await inquirer
+        .prompt([
+        {
+            type: "input",
+            name: "firstName",
+            message: "What is the first name of the new employee?"
+        },
+        {
+            type: "input",
+            name: "lastName",
+            message: "What is the last name of the new employee?"
+        },
+        {
+            type: "list",
+            name: "roleName",
+            message: "What is the new employee's role?",
+            choices: roleChoices
+        },
+        {
+            type: "list",
+            name: "managerName",
+            message: "Who is the new employee's manager?",
+            choices: managerChoices,
+            default: "None"
+        },
+    ]);
+    // console.log("User response",userResponse);
+    const roleID = (await db.promise().query(
+        `SELECT id
+        FROM roles
+        WHERE
+        title="${userResponse.roleName}"`))[0][0].id;
+    
+
+    const managerID = userResponse.managerName === "None" ? null : (await db.promise().query(
+        `SELECT id
+        FROM employees
+        WHERE CONCAT(first_name," ",last_name)="${userResponse.managerName}"`))[0][0].id;
+    // console.log("managerID",managerID);
+    
+
+    const sql = `
+    INSERT INTO employees (first_name, last_name, role_id, manager_id)
+        VALUES ("${userResponse.firstName}", "${userResponse.lastName}", ${roleID}, ${managerID})`;
+    await db.promise().query(sql);
+    getNextTask();
+
 }
 
 function getNextTask() {
@@ -136,6 +207,9 @@ function getNextTask() {
                     break;
                 case "Add A Role":
                     addRole();
+                    break;
+                case "Add An Employee":
+                    addEmployee();
                     break;
                 default:
                     console.log("Haven't coded that part yet.");
