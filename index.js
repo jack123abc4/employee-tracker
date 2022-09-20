@@ -47,6 +47,36 @@ function printEmployees() {
     );
 }
 
+async function getDepartments() {
+    const departments = (await db.promise().query("SELECT department_name FROM departments"))[0];
+    let departmentChoices = [];
+    for (const d of departments) {
+        departmentChoices.push(d.department_name);
+    }
+    return departmentChoices;
+}
+
+async function getRoles() {
+    const roles = (await db.promise().query("SELECT id, title FROM roles"))[0];
+    // console.log(roles);
+    let roleChoices = [];
+    for (const r of roles) {
+        roleChoices.push(r.title);
+    }
+
+    return roleChoices;
+}
+
+async function getEmployees() {
+    const employees = (await db.promise().query("SELECT id, first_name, last_name FROM employees"))[0];
+    // console.log(employees);
+    let employeeChoices = [];
+    for (const e of employees) {
+        employeeChoices.push(`${e.first_name} ${e.last_name}`);
+    }
+    return employeeChoices;
+}
+
 async function addDepartment() {
     await inquirer
         .prompt({
@@ -64,12 +94,8 @@ async function addDepartment() {
 }
 
 async function addRole() {
-    const departments = await db.promise().query("SELECT department_name FROM departments");
-    let departmentChoices = [];
-    for (const d of departments[0]) {
-        departmentChoices.push(d.department_name);
-    }
-    // console.log(departmentChoices);
+    const departmentChoices = await getDepartments();
+    
     const userResponse = await inquirer
         .prompt([
         {
@@ -105,25 +131,8 @@ async function addRole() {
 }
 
 async function addEmployee() {
-    const departments = (await db.promise().query("SELECT department_name FROM departments"))[0];
-    let departmentChoices = [];
-    for (const d of departments) {
-        departmentChoices.push(d.department_name);
-    }
-
-    const roles = (await db.promise().query("SELECT id, title FROM roles"))[0];
-    // console.log(roles);
-    let roleChoices = [];
-    for (const r of roles) {
-        roleChoices.push(r.title);
-    }
-
-    const employees = (await db.promise().query("SELECT id, first_name, last_name FROM employees"))[0];
-    // console.log(employees);
-    let managerChoices = [];
-    for (const m of employees) {
-        managerChoices.push(`${m.first_name} ${m.last_name}`);
-    }
+    const roleChoices = await getRoles();
+    const managerChoices = await getEmployees();
     managerChoices.push("None");
 
     const userResponse = await inquirer
@@ -176,19 +185,9 @@ async function addEmployee() {
 }
 
 async function updateRole() {
-    const employees = (await db.promise().query("SELECT id, first_name, last_name FROM employees"))[0];
-    // console.log(employees);
-    let employeeChoices = [];
-    for (const e of employees) {
-        employeeChoices.push(`${e.first_name} ${e.last_name}`);
-    }
+    const employeeChoices = await getEmployees();
+    const roleChoices = await getRoles();
 
-    const roles = (await db.promise().query("SELECT id, title FROM roles"))[0];
-    // console.log(roles);
-    let roleChoices = [];
-    for (const r of roles) {
-        roleChoices.push(r.title);
-    }
     const userResponse = await inquirer
         .prompt([
         {
@@ -225,6 +224,10 @@ async function updateRole() {
     getNextTask();
 }
 
+function updateManager() {
+
+}
+
 function getNextTask() {
     inquirer
         .prompt({
@@ -238,7 +241,8 @@ function getNextTask() {
                 "Add A Department",
                 "Add A Role",
                 "Add An Employee",
-                "Update An Employee Role"
+                "Update An Employee Role",
+                "Update An Employee's Manager",
             ]
         })
         .then((response) => {
@@ -263,6 +267,9 @@ function getNextTask() {
                     break;
                 case "Update An Employee Role":
                     updateRole();
+                    break;
+                case "Update An Employee's Manager":
+                    updateManager();
                     break;
                 default:
                     console.log("Haven't coded that part yet.");
