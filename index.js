@@ -224,7 +224,44 @@ async function updateRole() {
     getNextTask();
 }
 
-function updateManager() {
+async function updateManager() {
+    const employeeChoices = await getEmployees();
+    const managerChoices = await getEmployees();
+    managerChoices.push("None");
+
+    const userResponse = await inquirer
+        .prompt([
+        {
+            type: "list",
+            name: "employeeName",
+            message: "For which employee would you like to update their manager?",
+            choices: employeeChoices
+        },
+        {
+            type: "list",
+            name: "managerName",
+            message: "Who is the employee's new manager?",
+            choices: managerChoices,
+            default: "None"
+        }
+    ]);
+    const employeeID = (await db.promise().query(
+        `SELECT id
+        FROM employees
+        WHERE CONCAT(first_name," ",last_name)="${userResponse.employeeName}"`))[0][0].id;
+
+    const managerID = userResponse.managerName === "None" ? null : (await db.promise().query(
+        `SELECT id
+        FROM employees
+        WHERE CONCAT(first_name," ",last_name)="${userResponse.managerName}"`))[0][0].id;
+
+    const sql = `
+    UPDATE employees
+    SET manager_id = ${managerID}
+    WHERE id = ${employeeID}`;
+    await db.promise().query(sql);
+
+    getNextTask();
 
 }
 
