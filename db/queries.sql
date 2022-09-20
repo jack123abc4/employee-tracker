@@ -27,7 +27,7 @@ JOIN departments AS d ON r.department_id = d.id;
 
 -- EMPLOYEES PRINT OUT
 -- employee id, first name, last name, job title, department, salary, manager
-SELECT e.id AS EMPLOYEE_ID, e.first_name AS FIRST_NAME, e.last_name AS LAST_NAME, r.title as TITLE, d.department_name AS DEPARTMENT_NAME, r.salary AS SALARY, IFNULL(CONCAT(m.first_name, ' ', m.last_name), "none") AS MANAGER
+SELECT e.id AS EMPLOYEE_ID, e.first_name AS FIRST_NAME, e.last_name AS LAST_NAME, r.title as TITLE, d.department_name AS DEPARTMENT_NAME, r.salary AS SALARY, IFNULL(CONCAT(m.first_name, ' ', m.last_name), "N/A") AS MANAGER
 FROM employees AS e
 JOIN roles AS r ON e.role_id = r.id
 JOIN departments AS d ON r.department_id = d.id
