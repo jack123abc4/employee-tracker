@@ -17,6 +17,8 @@ This program can be used from the terminal. After installing the appropriate dep
 
 ![image](/assets/images/screenshot.PNG)
 
+https://github.com/jack123abc4/employee-tracker
+
 ## Credits
 
 N/A
